@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-title-key="meta.title.home">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://raw.githubusercontent.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="JobEval: country-specific job-application assistants (Brazil, United States, Germany, Spain) for any capable LLM, plus a no-install code-to-PDF tool.">
+<title>JobEval</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f5f8b'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/i18n.js"></script>
+<script src="assets/home.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="./">JobEval</a>
+    <nav class="nav" aria-label="JobEval">
+      <a href="./" aria-current="page" data-i18n="nav.home">Assistentes</a>
+      <a href="pdf.html" data-i18n="nav.pdf">Gerar PDF</a>
+      <a href="https://github.com/MaloneFreak/JobEval" data-i18n="nav.github">GitHub</a>
+    </nav>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 data-i18n="home.title">Assistentes de candidatura por país, para usar no seu chat de IA.</h1>
+  <p class="lead" data-i18n="home.lead"></p>
+  <p class="note" data-i18n="home.works"></p>
+
+  <h2 data-i18n="steps.title">Como usar</h2>
+  <ol class="steps">
+    <li>
+      <h3 data-i18n="step1.title"></h3>
+      <p data-i18n="step1.text"></p>
+    </li>
+    <li>
+      <h3 data-i18n="step2.title"></h3>
+      <p data-i18n="step2.text"></p>
+    </li>
+    <li>
+      <h3 data-i18n="step3.title"></h3>
+      <p data-i18n="step3.text"></p>
+      <p><a class="btn secondary" href="pdf.html" data-i18n="step3.cta">Abrir a página de PDF</a></p>
+    </li>
+  </ol>
+
+  <h2 data-i18n="personas.title">Escolha o assistente</h2>
+  <div class="cards" id="cards"></div>
+
+  <h2 data-i18n="tips.title">Bom saber</h2>
+  <ul class="tips">
+    <li data-i18n="tip1"></li>
+    <li data-i18n="tip2"></li>
+    <li data-i18n="tip3"></li>
+    <li data-i18n="tip4"></li>
+  </ul>
+  <p><a href="https://github.com/MaloneFreak/JobEval/blob/main/docs/guides/pdf.pt-BR.md" data-i18n-href="guide.href" data-i18n="guide.link">Guia passo a passo</a></p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p data-i18n="footer.license"></p>
+    <p data-i18n="footer.privacy"></p>
+  </div>
+</footer>
+
+<template id="card-template">
+  <article class="card">
+    <div class="market"><span class="badge"></span><span class="market-name"></span></div>
+    <h3 class="persona-name"></h3>
+    <p class="desc"></p>
+    <div class="version"></div>
+    <div class="actions">
+      <button type="button" class="btn copy"></button>
+      <a class="btn quiet download"></a>
+      <a class="btn quiet view"></a>
+    </div>
+    <div class="feedback" role="status" aria-live="polite"></div>
+  </article>
+</template>
+</body>
+</html>
