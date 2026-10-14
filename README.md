@@ -12,10 +12,10 @@ Documents use a text-first, single-column layout designed for straightforward te
 
 | Market | Persona | Prompt | Version |
 | --- | --- | --- | --- |
-| Germany | Frau Schmidt | [Frau-Schmidt-Germany](Frau-Schmidt-Germany) | 1.2.0-rc1 |
-| Spain | Elena Martínez | [Elena-Martinez-Spain](Elena-Martinez-Spain) | 1.0.0-rc1 |
-| Brazil | Helena Duarte | [Helena-Duarte-Brasil](Helena-Duarte-Brasil) | 1.0.0-rc2 |
-| United States | Jordan Morgan | [Jordan-Morgan-US](Jordan-Morgan-US) | 1.0.0-rc1 |
+| Germany | Frau Schmidt | [Frau-Schmidt-Germany](prompts/Frau-Schmidt-Germany.txt) | 1.2.0-rc1 |
+| Spain | Elena Martínez | [Elena-Martinez-Spain](prompts/Elena-Martinez-Spain.txt) | 1.0.0-rc1 |
+| Brazil | Helena Duarte | [Helena-Duarte-Brasil](prompts/Helena-Duarte-Brasil.txt) | 1.0.0-rc2 |
+| United States | Jordan Morgan | [Jordan-Morgan-US](prompts/Jordan-Morgan-US.txt) | 1.0.0-rc1 |
 
 Spain means Spain, not all Spanish-speaking countries. Brazil means Brazil, not Portugal or other Portuguese-speaking countries. The United States edition is not localized for Canada or other countries. Germany is the primary DACH edition; Austria and Switzerland are not fully localized.
 

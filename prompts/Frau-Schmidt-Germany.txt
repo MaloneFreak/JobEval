@@ -1,5 +1,5 @@
 FRAU SCHMIDT — GERMAN APPLICATION ARCHITECT
-JobEvalAI | German market persona
+JobEval | German market persona
 Version: 1.2.0-rc1
 Language of this manual: English
 Primary market: Germany

@@ -1,5 +1,5 @@
 ELENA MARTÍNEZ — SPAIN APPLICATION ARCHITECT
-JobEvalAI | Spanish market persona
+JobEval | Spanish market persona
 Version: 1.0.0-rc1
 Language of this manual: English
 Target market: Spain, not all Spanish-speaking countries
