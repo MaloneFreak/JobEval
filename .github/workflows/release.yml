@@ -1,9 +1,14 @@
 name: Release
 
-# Pushing a tag such as v1.4 builds the downloadable files and publishes
-# the GitHub release. Notes come from .github/release-notes/<tag>.md
-# (first line "# Title", the rest is the body). Run it manually to
-# rebuild the files of an existing release.
+# Builds the files a candidate needs and publishes the GitHub release.
+#
+# - Push a tag such as v1.4, or
+# - run it manually (Actions → Release → Run workflow) with the tag name.
+#   A missing tag is created on "target" (default: the branch of the run).
+#   An existing release gets its files rebuilt.
+#
+# Notes come from .github/release-notes/<tag>.md: the first line
+# "# Title" is the release title, the rest is the body.
 
 on:
   push:
@@ -11,8 +16,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing tag to build, for example v1.4
+        description: Tag to release, for example v1.4 (created if missing)
         required: true
+      target:
+        description: Branch or commit for a new tag (empty = branch of this run)
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -22,37 +31,82 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      TARGET: ${{ inputs.target }}
       GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
     steps:
-      - uses: actions/checkout@v5
+      - name: Check out release notes
+        uses: actions/checkout@v5
         with:
-          ref: ${{ env.TAG }}
+          path: tooling
+
+      - name: Resolve the release source
+        id: src
+        run: |
+          set -euo pipefail
+          if gh api "repos/${GH_REPO}/git/ref/tags/${TAG}" >/dev/null 2>&1; then
+            echo "ref=refs/tags/${TAG}" >> "$GITHUB_OUTPUT"
+            echo "tag_exists=true" >> "$GITHUB_OUTPUT"
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            echo "Tag ${TAG} not found" >&2
+            exit 1
+          else
+            sha="$(gh api "repos/${GH_REPO}/commits/${TARGET:-$GITHUB_SHA}" --jq .sha)"
+            echo "ref=${sha}" >> "$GITHUB_OUTPUT"
+            echo "tag_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out release source
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.src.outputs.ref }}
+          path: src
 
       - name: Build release files
+        working-directory: src
         run: |
           set -euo pipefail
           name="JobEval-${TAG}"
-          rm -rf dist stage
-          mkdir -p dist "stage/${name}/docs"
-          cp README.md README.pt-BR.md CHANGELOG.md LICENSE "stage/${name}/"
-          cp -r prompts examples "stage/${name}/"
-          cp -r docs/guides "stage/${name}/docs/"
-          (cd stage && zip -qr "../dist/${name}.zip" "${name}")
-          cp prompts/*.txt dist/
-          cp examples/curriculo-exemplo.pdf dist/
-          (cd dist && sha256sum -- * > SHA256SUMS.txt)
-          ls -l dist
+          dist="${GITHUB_WORKSPACE}/dist"
+          stage="${GITHUB_WORKSPACE}/stage"
+          rm -rf "${dist}" "${stage}"
+          mkdir -p "${dist}" "${stage}/${name}/docs"
+          cp README.md README.pt-BR.md CHANGELOG.md LICENSE "${stage}/${name}/"
+          cp -r prompts examples "${stage}/${name}/"
+          cp -r docs/guides "${stage}/${name}/docs/"
+          (cd "${stage}" && zip -qr "${dist}/${name}.zip" "${name}")
+          cp prompts/*.txt "${dist}/"
+          cp examples/curriculo-exemplo.pdf "${dist}/"
+          (cd "${dist}" && sha256sum -- * > SHA256SUMS.txt)
+          ls -l "${dist}"
 
       - name: Publish release
+        env:
+          TAG_EXISTS: ${{ steps.src.outputs.tag_exists }}
+          SOURCE: ${{ steps.src.outputs.ref }}
         run: |
           set -euo pipefail
-          notes=".github/release-notes/${TAG}.md"
-          if gh release view "${TAG}" >/dev/null 2>&1; then
-            gh release upload "${TAG}" dist/* --clobber
-          elif [ -f "${notes}" ]; then
+          notes="tooling/.github/release-notes/${TAG}.md"
+          title="${TAG}"
+          if [ -f "${notes}" ]; then
             title="$(head -n 1 "${notes}" | sed 's/^# *//')"
             tail -n +2 "${notes}" > notes-body.md
-            gh release create "${TAG}" dist/* --verify-tag --title "${title}" --notes-file notes-body.md
+          fi
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" dist/* --clobber
+            body="$(gh release view "${TAG}" --json body --jq .body)"
+            if [ -z "${body}" ] && [ -f notes-body.md ]; then
+              gh release edit "${TAG}" --title "${title}" --notes-file notes-body.md
+            fi
           else
-            gh release create "${TAG}" dist/* --verify-tag --title "${TAG}" --generate-notes
+            if [ "${TAG_EXISTS}" = "true" ]; then
+              where=(--verify-tag)
+            else
+              where=(--target "${SOURCE}")
+            fi
+            if [ -f notes-body.md ]; then
+              gh release create "${TAG}" dist/* "${where[@]}" --title "${title}" --notes-file notes-body.md
+            else
+              gh release create "${TAG}" dist/* "${where[@]}" --title "${title}" --generate-notes
+            fi
           fi
