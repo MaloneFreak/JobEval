@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-title-key="meta.title.pdf">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://cdn.jsdelivr.net https://raw.githubusercontent.com; frame-src 'self' blob:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Turn the Typst or HTML code from a JobEval assistant into a PDF, in the browser, without installing anything.">
+<title>JobEval – PDF</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f5f8b'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/i18n.js"></script>
+<script src="assets/pdf.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="./">JobEval</a>
+    <nav class="nav" aria-label="JobEval">
+      <a href="./" data-i18n="nav.home">Assistentes</a>
+      <a href="pdf.html" aria-current="page" data-i18n="nav.pdf">Gerar PDF</a>
+      <a href="https://github.com/MaloneFreak/JobEval" data-i18n="nav.github">GitHub</a>
+    </nav>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="pt" aria-pressed="false">PT</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 data-i18n="pdf.title">Do código ao PDF</h1>
+  <p class="lead" data-i18n="pdf.lead"></p>
+  <p class="note"><span data-i18n="pdf.privacy"></span> <span data-i18n="pdf.device"></span></p>
+
+  <section class="panel" aria-labelledby="tab-typst">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tab-typst" aria-selected="true" aria-controls="source" data-mode="typst" data-i18n="tab.typst">Typst</button>
+      <button type="button" role="tab" id="tab-html" aria-selected="false" aria-controls="source" data-mode="html" data-i18n="tab.html">HTML</button>
+    </div>
+
+    <textarea id="source" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Code" data-i18n-placeholder="pdf.placeholder.typst"></textarea>
+
+    <div class="row">
+      <label for="filename" data-i18n="pdf.filename">Nome do arquivo</label>
+      <input type="text" id="filename" autocomplete="off">
+      <span class="spacer"></span>
+      <button type="button" class="btn quiet" id="example" data-i18n="pdf.example">Usar exemplo</button>
+      <button type="button" class="btn quiet" id="clear" data-i18n="pdf.clear">Limpar</button>
+    </div>
+
+    <div class="row" id="typst-actions">
+      <button type="button" class="btn" id="generate" data-i18n="pdf.generate">Gerar PDF</button>
+    </div>
+
+    <div class="row hidden" id="html-actions">
+      <button type="button" class="btn" id="html-preview" data-i18n="html.preview">Visualizar</button>
+      <button type="button" class="btn secondary" id="html-print" data-i18n="html.print">Imprimir / salvar PDF</button>
+      <button type="button" class="btn quiet" id="html-download" data-i18n="html.download">Baixar .html</button>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+
+    <div class="result hidden" id="result">
+      <h3><span data-i18n="pdf.done">PDF pronto.</span> <span id="pages"></span></h3>
+      <div class="row">
+        <a class="btn" id="pdf-download" data-i18n="pdf.download">Baixar PDF</a>
+        <a class="btn secondary" id="pdf-open" target="_blank" rel="noopener" data-i18n="pdf.open">Abrir em nova aba</a>
+      </div>
+      <p data-i18n="pdf.check.title"></p>
+      <ul>
+        <li data-i18n="pdf.check1"></li>
+        <li data-i18n="pdf.check2"></li>
+        <li data-i18n="pdf.check3"></li>
+      </ul>
+    </div>
+
+    <div class="error-box hidden" id="error-box">
+      <h3 data-i18n="pdf.error.title">O código não compilou</h3>
+      <p data-i18n="pdf.error.hint"></p>
+      <pre class="diag" id="diag"></pre>
+      <button type="button" class="btn quiet" id="copy-error" data-i18n="pdf.error.copy">Copiar erro</button>
+    </div>
+
+    <div class="hidden" id="html-panel">
+      <p class="note"><span data-i18n="html.printHint"></span> <span data-i18n="html.safe"></span></p>
+      <div class="preview">
+        <iframe id="html-frame" title="Preview" sandbox="allow-same-origin allow-modals"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <p><a href="https://github.com/MaloneFreak/JobEval/blob/main/docs/guides/pdf.pt-BR.md" data-i18n-href="guide.href" data-i18n="guide.link">Guia passo a passo</a></p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p data-i18n="footer.license"></p>
+    <p data-i18n="footer.privacy"></p>
+  </div>
+</footer>
+</body>
+</html>
