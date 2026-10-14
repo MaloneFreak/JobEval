@@ -1,0 +1,58 @@
+name: Release
+
+# Pushing a tag such as v1.4 builds the downloadable files and publishes
+# the GitHub release. Notes come from .github/release-notes/<tag>.md
+# (first line "# Title", the rest is the body). Run it manually to
+# rebuild the files of an existing release.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to build, for example v1.4
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Build release files
+        run: |
+          set -euo pipefail
+          name="JobEval-${TAG}"
+          rm -rf dist stage
+          mkdir -p dist "stage/${name}/docs"
+          cp README.md README.pt-BR.md CHANGELOG.md LICENSE "stage/${name}/"
+          cp -r prompts examples "stage/${name}/"
+          cp -r docs/guides "stage/${name}/docs/"
+          (cd stage && zip -qr "../dist/${name}.zip" "${name}")
+          cp prompts/*.txt dist/
+          cp examples/curriculo-exemplo.pdf dist/
+          (cd dist && sha256sum -- * > SHA256SUMS.txt)
+          ls -l dist
+
+      - name: Publish release
+        run: |
+          set -euo pipefail
+          notes=".github/release-notes/${TAG}.md"
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" dist/* --clobber
+          elif [ -f "${notes}" ]; then
+            title="$(head -n 1 "${notes}" | sed 's/^# *//')"
+            tail -n +2 "${notes}" > notes-body.md
+            gh release create "${TAG}" dist/* --verify-tag --title "${title}" --notes-file notes-body.md
+          else
+            gh release create "${TAG}" dist/* --verify-tag --title "${TAG}" --generate-notes
+          fi
